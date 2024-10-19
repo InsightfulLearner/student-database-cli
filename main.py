@@ -3,7 +3,11 @@ import csv
 import random
 import re
 
-student_data = []
+student_data = [] # Create an initial variable to store/handle data input
+
+# ==========================
+# Constants
+# ==========================
 
 FIELDSNAMES = ["unique_id", "student_names", 
                "student_dob", "student_address", "student_grades", 
@@ -12,6 +16,10 @@ FIELDSNAMES = ["unique_id", "student_names",
 
 NAME_REGEX = r'^[a-zA-Z- ]+$'
 
+
+# ==========================
+# Data Loading
+# ==========================
 
 # Open file/load data from file or create relevant variable to store details to save to the file
 try:
@@ -24,7 +32,11 @@ except FileNotFoundError:
 except:
     print("Investigate error type - please report this")
 
-# Save data to file
+
+# ==========================
+# File Operations
+# ==========================
+
 def save_to_file():
     with open("student_database.csv", "w", newline='') as file:
         writer = csv.DictWriter(file, fieldsnames=FIELDSNAMES)
@@ -33,8 +45,9 @@ def save_to_file():
             writer.writerow(student)
 
 
-# Validator functions
-
+# ==========================
+# Validator Functions
+# ==========================
 
 def validate_names(prompt):
     while True:
@@ -52,6 +65,10 @@ def get_valid_names():
     print(uid)
     return first_and_last_names
 
+
+# ==========================
+# Unique ID Generation
+# ==========================
 
 # Create unique ID for each student
 def create_unique_id(first_and_last_names):
@@ -72,6 +89,11 @@ def create_unique_id(first_and_last_names):
             break
 
     return unique_id
+
+
+# ==========================
+# Student Management Functions
+# ==========================
 
 # Add student to database 
 # Unique ID, Name, DOB, Address, Grades by subject, abscences, medical notes, detentions
@@ -117,6 +139,11 @@ def remove_student():
 
 # Remove student from database (add confirmation)
 
+
+# ==========================
+# Display Functions
+# ==========================
+
 # View all students in database (show all students and info)
 def show_list_of_students():
 
@@ -136,6 +163,9 @@ def show_list_of_students():
         print(f"An error occurred {e}")
 
 
+# ==========================
+# Search Functions
+# ==========================
 
 def search_for_student():
 
@@ -172,6 +202,10 @@ def search_by_parents_name():
 def search_by_dob():
     print("Work in progress")
 
+# ==========================
+# Main Menu Functions
+# ==========================
+
 # Shows the initial menu to the user for interaction
 def show_menu() -> None:
     """
@@ -202,6 +236,10 @@ def student_management():
     user_selection = get_user_selection(1, 6)
     handle_user_selection(user_selection, action_map)
 
+
+# ==========================
+# User Input Functions
+# ==========================
 
 def get_user_selection(min_value: int = 1, max_value: int = 6) -> int:
     """
@@ -246,6 +284,9 @@ def exit_program() -> None:
     sys.exit()
 
 
+# ==========================
+# Main Function
+# ==========================
 def main():
     while True:
         show_menu() # Show the user a list of options
