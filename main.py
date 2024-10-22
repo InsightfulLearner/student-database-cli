@@ -10,6 +10,26 @@ student_data = [] # Create an initial variable to store/handle data input
 # Constants
 # ==========================
 
+# Subjects 
+SUBJECTS = {
+    "maths": "Mathmatics",
+    "english": "English",
+    "biology": "Biology",
+    "physics": "Physics",
+    "chemistry": "Chemistry",
+    "physical_education": "Physical Education",
+    "history": "History",
+    "religous_education": "Religious Education",
+    "geography": "Geography",
+    "food_tech": "Food Technology",
+    "textiles": "Textiles",
+    "design_technology": "Design Technology",
+    "foreign_languages": "Foreign Languages",
+    "art_and_design": "Art and Design",
+    "music": "Music",
+    "citizenship": "Citizenship",
+    "information_technology": "Information Technology"
+}
 
 # Readable header mapping
 READABLE_HEADERS = {
@@ -28,6 +48,7 @@ READABLE_HEADERS = {
 
 
 NAME_REGEX = r'^[a-zA-Z- ]+$'
+
 
 # Inverse mapping for loading data
 internal_headers = {v: k for k, v in READABLE_HEADERS.items()}
@@ -138,7 +159,7 @@ def get_valid_date_of_birth():
 # ==========================
 
 # Add student to database 
-# Unique ID, Name, DOB, Address, Grades by subject, abscences, medical notes, detentions
+# Address, Grades by subject, abscences, medical notes, detentions
 # Parent/Guardian and their contact details
 def add_student():
     get_student_names = get_valid_names() # Gets the user to input the students name (has validation checks)
@@ -159,7 +180,7 @@ def change_student_details():
     print("Work in progress")
 
 
-def remove_student():
+def remove_student_by_unique_id():
     print("Work in progress")
 
 
@@ -288,7 +309,7 @@ def student_management():
         2: search_for_student,
         3: add_student,
         4: change_student_details,
-        5: remove_student,
+        5: remove_student_by_unique_id,
         6: exit_program,
     }
     user_selection = get_user_selection(1, 6)
