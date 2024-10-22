@@ -2,6 +2,7 @@ import sys
 import csv
 import random
 import re
+from datetime import datetime
 
 student_data = [] # Create an initial variable to store/handle data input
 
@@ -9,61 +10,58 @@ student_data = [] # Create an initial variable to store/handle data input
 # Constants
 # ==========================
 
-FIELDSNAMES = ["unique_id", "student_names", 
-               "student_dob", "student_address", "student_grades", 
-               "student_absences", "medical_appointments", "medical_notes", 
-               "student_detenions", "emergency_contact", "parents_name"]
+
+# Readable header mapping
+READABLE_HEADERS = {
+    "student_names": "Student Name",
+    "unique_id": "Student ID",
+    "student_dob": "Date of Birth",
+    "student_address": "Address",
+    "student_grades": "Grades",
+    "student_absences": "Absences",
+    "medical_appointments": "Medical Appointments",
+    "medical_notes": "Medical Notes",
+    "student_detentions": "Detentions",
+    "emergency_contact": "Emergency Contact",
+    "parents_names": "Parent Name",
+}
+
 
 NAME_REGEX = r'^[a-zA-Z- ]+$'
 
+# Inverse mapping for loading data
+internal_headers = {v: k for k, v in READABLE_HEADERS.items()}
 
 # ==========================
 # Data Loading
 # ==========================
 
 # Open file/load data from file or create relevant variable to store details to save to the file
-try:
-    with open("student_database.csv") as file:
-        reader = csv.DictReader(file)
-        for row in reader:
-            student_data.append(row)
-except FileNotFoundError:
-    print("File not found")
-except:
-    print("Investigate error type - please report this")
+def load_from_csv():
+    global student_data
+    try:
+        with open("student_database.csv", "r") as file:
+            reader = csv.DictReader(file)
+            student_data = []
+            for row in reader:
+                student_data.append({internal_headers[key]: value for key, value in row.items()})
+    except FileNotFoundError:
+        print("File not found")
+    except:
+        print("Investigate error type - please report this")
 
 
 # ==========================
 # File Operations
 # ==========================
 
-def save_to_file():
+def save_to_csv():
     with open("student_database.csv", "w", newline='') as file:
-        writer = csv.DictWriter(file, fieldsnames=FIELDSNAMES)
+        writer = csv.DictWriter(file, fieldsnames=READABLE_HEADERS.values())
         writer.writeheader()
+
         for student in student_data:
             writer.writerow(student)
-
-
-# ==========================
-# Validator Functions
-# ==========================
-
-def validate_names(prompt):
-    while True:
-        names = input(prompt).strip().title()
-        if re.match(NAME_REGEX, names, re.UNICODE):
-            return names.split()
-        else:
-            print("Invalid input. Please enter valid names consisting of letters or hyphen only.")
-
-
-def get_valid_names():
-    first_and_last_names = validate_names("Enter student's full name: ")
-    print(first_and_last_names)
-    uid = create_unique_id(first_and_last_names)
-    print(uid)
-    return first_and_last_names
 
 
 # ==========================
@@ -92,6 +90,50 @@ def create_unique_id(first_and_last_names):
 
 
 # ==========================
+# Validator Functions
+# ==========================
+
+def validate_names(prompt):
+    while True:
+        names = input(prompt).title()
+        cleaned_names = ' '.join(names.strip().split())
+        if re.match(NAME_REGEX, cleaned_names, re.UNICODE):
+            return cleaned_names.split()
+        else:
+            print("Invalid input. Please enter valid names consisting of letters or hyphen only.")
+
+
+def get_valid_names():
+    first_and_last_names = validate_names("Enter student's full name: ")
+    uid = create_unique_id(first_and_last_names)
+    return first_and_last_names
+
+
+def validate_real_date(day, month, year):
+    todays_date = datetime.now()
+    current_year = todays_date.year
+    try:
+        student_dob = datetime(year, month, day)
+    except:
+        ValueError
+        return False
+    if (current_year - student_dob.year) < 22:
+        return student_dob
+    else:
+        return False
+
+
+def get_valid_date_of_birth():
+    while True:
+        dob_input = input("Enter student's date of birth (DD-MM-YYYY): ")
+        if re.match(r'^\d{2}-\d{2}-\d{4}$', dob_input): # Check for correct format
+            day, month, year = map(int, dob_input.split('-'))
+            if validate_real_date(day, month, year):
+                return dob_input 
+        print("Invalid date format or date is not valid. Please use DD-MM-YYYY")
+
+
+# ==========================
 # Student Management Functions
 # ==========================
 
@@ -99,13 +141,27 @@ def create_unique_id(first_and_last_names):
 # Unique ID, Name, DOB, Address, Grades by subject, abscences, medical notes, detentions
 # Parent/Guardian and their contact details
 def add_student():
-    get_valid_names() # Gets the user to input the students name (has validation checks)
+    get_student_names = get_valid_names() # Gets the user to input the students name (has validation checks)
+    uid = create_unique_id(get_student_names)
+    get_date_of_birth = get_valid_date_of_birth()
+
+    student = {
+        "student_names": get_student_names,
+        "unique_id": uid,
+        "student_dob": get_date_of_birth
+    }
+    student_data.append(student)
+    for student in student_data:
+        print(student)
+
 
 def change_student_details():
     print("Work in progress")
 
+
 def remove_student():
     print("Work in progress")
+
 
 # Handle address input (potentially add a postcode look-up tool with manual entry)
 
@@ -153,10 +209,11 @@ def show_list_of_students():
     
     try:
         for student in student_data:
-            print(f"Unique ID: {student['unique_id']} "
-                f"Student's Name: {student['student_names']} "
-                f"Date of Birth: {student['student_dob']}"
-                )
+            print(
+            f"Unique ID: {student['unique_id']} "
+            f"Student's Name: {' '.join(student['student_names'])} "
+            f"Date of Birth: {student['student_dob']}"
+            )
     except KeyError as e:
         print(f"Missing key: {e}")
     except Exception as e:
@@ -181,7 +238,7 @@ def search_for_student():
         "2. By Unique ID\n"
         "3. By Parent's Name\n"
         "4. By Date of Birth\n"
-        "5. Go back to Menu\n"
+        "5. Go back to Menu"
     )
     user_selection = get_user_selection(1, 5)
     handle_user_selection(user_selection, action_map)
@@ -225,6 +282,7 @@ def show_menu() -> None:
 
 
 def student_management():
+    show_menu()
     action_map = {
         1: show_list_of_students,
         2: search_for_student,
@@ -288,9 +346,9 @@ def exit_program() -> None:
 # Main Function
 # ==========================
 def main():
+    load_from_csv()
     while True:
-        show_menu() # Show the user a list of options
-        student_management() # Handle the users selection and call the relevant function
+        student_management() # Initial menu and user input handling
 
 
 if __name__ == "__main__":
