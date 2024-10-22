@@ -10,7 +10,7 @@ student_data = [] # Create an initial variable to store/handle data input
 # Constants
 # ==========================
 
-# Subjects 
+# Subjects with readable mapping
 SUBJECTS = {
     "maths": "Mathmatics",
     "english": "English",
@@ -31,6 +31,8 @@ SUBJECTS = {
     "information_technology": "Information Technology"
 }
 
+GRADES = ("9", "8", "7", "6", "5", "4", "3", "2", "1", "U")
+
 # Readable header mapping
 READABLE_HEADERS = {
     "student_names": "Student Name",
@@ -45,7 +47,6 @@ READABLE_HEADERS = {
     "emergency_contact": "Emergency Contact",
     "parents_names": "Parent Name",
 }
-
 
 NAME_REGEX = r'^[a-zA-Z- ]+$'
 
