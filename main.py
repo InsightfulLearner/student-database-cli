@@ -256,8 +256,8 @@ def show_list_of_students():
 def print_student_data(student):
 
     print(
-        f"Unique ID: {student['unique_id']} "
-        f"Student's Name: {student['student_names']} "
+        f"Unique ID: {student['unique_id']}, "
+        f"Student's Name: {student['student_names']}, "
         f"Date of Birth: {student['student_dob']}"
         )
 
@@ -290,7 +290,12 @@ def search_by_name():
 
 # Handles the logic to search for student's by their unique ID
 def search_by_unique_id():
-    print("Work in progress")
+    user_input = input("Please enter the student's unique ID to search: ")
+
+    if user_input in student_data.keys():
+        print_student_data(student_data[user_input])
+    else: 
+        print(f"Unable to find student with unique ID: {user_input}")
 
 # Handles the logic to search for student's by their parents name
 def search_by_parents_name():
