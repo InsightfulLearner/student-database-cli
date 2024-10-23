@@ -53,7 +53,7 @@ def save_to_csv():
 
 # Create unique ID for each student
 def create_unique_id(full_name):
-    existing_uids = {student['unique_id'] for student in student_data}
+    existing_uids = {student['unique_id'] for student in student_data.values()}
     initials = ''.join(part[0] for part in full_name.split())  # Extract initials from the full name
 
     while True:
