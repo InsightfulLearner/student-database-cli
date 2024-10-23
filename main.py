@@ -4,7 +4,7 @@ import random
 import re
 from datetime import datetime
 
-student_data = [] # Create an initial variable to store/handle data input
+student_data = {} # Create an initial variable to store/handle data input
 
 # ==========================
 # Constants
@@ -64,13 +64,19 @@ def load_from_csv():
     try:
         with open("student_database.csv", "r") as file:
             reader = csv.DictReader(file)
-            student_data = []
+            student_data = {}
             for row in reader:
-                student_data.append({internal_headers[key]: value for key, value in row.items()})
+                print(f"Row read: {row}")  # Debug: Show the raw row data
+                uid = row["Student ID"].strip()  # Accessing the Student ID
+                student_data[uid] = {
+                    internal_headers[header.strip()]: row[header].strip()  # Map each readable header to the internal key
+                    for header in reader.fieldnames
+                    if header.strip() in READABLE_HEADERS.values()  # Only include valid headers
+                }
     except FileNotFoundError:
         print("File not found")
-    except:
-        print("Investigate error type - please report this")
+    except Exception as e:
+        print(f"Investigate error type - please report this: {e}")
 
 
 # ==========================
@@ -79,11 +85,13 @@ def load_from_csv():
 
 def save_to_csv():
     with open("student_database.csv", "w", newline='') as file:
-        writer = csv.DictWriter(file, fieldsnames=READABLE_HEADERS.values())
+        writer = csv.DictWriter(file, fieldnames=READABLE_HEADERS.values())
         writer.writeheader()
 
-        for student in student_data:
-            writer.writerow(student)
+        for student in student_data.values():
+            # Create a new dictionary that maps internal keys to readable keys
+            row_to_write = {READABLE_HEADERS[key]: student[key] for key in student}
+            writer.writerow(row_to_write)
 
 
 # ==========================
@@ -91,24 +99,16 @@ def save_to_csv():
 # ==========================
 
 # Create unique ID for each student
-def create_unique_id(first_and_last_names):
-    exisiting_uids = {student['unique_id'] for student in student_data}
-    initials = ""
-
-    for name in first_and_last_names:
-        initial = name[0]
-        initials += initial
+def create_unique_id(full_name):
+    existing_uids = {student['unique_id'] for student in student_data}
+    initials = ''.join(part[0] for part in full_name.split())  # Extract initials from the full name
 
     while True:
         random_numbers = ''.join(random.choices('0123456789', k=6))
-        unique_id = f"{initials}{random_numbers}"
+        unique_id = f"{initials.upper()}{random_numbers}"  # Ensure uppercase initials
 
-        if unique_id in exisiting_uids:
-            continue 
-        else:
-            break
-
-    return unique_id
+        if unique_id not in existing_uids:
+            return unique_id  # Return as soon as we find a unique ID
 
 
 # ==========================
@@ -120,14 +120,13 @@ def validate_names(prompt):
         names = input(prompt).title()
         cleaned_names = ' '.join(names.strip().split())
         if re.match(NAME_REGEX, cleaned_names, re.UNICODE):
-            return cleaned_names.split()
+            return cleaned_names
         else:
             print("Invalid input. Please enter valid names consisting of letters or hyphen only.")
 
 
 def get_valid_names():
     first_and_last_names = validate_names("Enter student's full name: ")
-    uid = create_unique_id(first_and_last_names)
     return first_and_last_names
 
 
@@ -172,9 +171,9 @@ def add_student():
         "unique_id": uid,
         "student_dob": get_date_of_birth
     }
-    student_data.append(student)
-    for student in student_data:
-        print(student)
+    student_data[uid] = student 
+    save_to_csv()
+    
 
 
 def change_student_details():
@@ -182,7 +181,23 @@ def change_student_details():
 
 
 def remove_student_by_unique_id():
-    print("Work in progress")
+
+    global student_data
+
+    unique_id_input = input("Please enter the unique ID of the student to remove: ").upper()
+
+    if unique_id_input in student_data:
+        print("Student located: ", end="")
+        print_student_data(student_data[unique_id_input])
+        confirm_deletion = input("Would you like to remove this student? Y or N: ").upper().strip()
+        if confirm_deletion == "Y":
+            del student_data[unique_id_input]
+            save_to_csv()
+            print("Student removed from database")
+        else:
+            print("Student removal cancelled")
+    else:
+        print(f"Unable to locate student with unique ID: {unique_id_input}")
 
 
 # Handle address input (potentially add a postcode look-up tool with manual entry)
@@ -230,17 +245,21 @@ def show_list_of_students():
         return
     
     try:
-        for student in student_data:
-            print(
-            f"Unique ID: {student['unique_id']} "
-            f"Student's Name: {' '.join(student['student_names'])} "
-            f"Date of Birth: {student['student_dob']}"
-            )
+        for student in student_data.values():
+            print_student_data(student)
     except KeyError as e:
         print(f"Missing key: {e}")
     except Exception as e:
         print(f"An error occurred {e}")
 
+
+def print_student_data(student):
+
+    print(
+        f"Unique ID: {student['unique_id']} "
+        f"Student's Name: {student['student_names']} "
+        f"Date of Birth: {student['student_dob']}"
+        )
 
 # ==========================
 # Search Functions
