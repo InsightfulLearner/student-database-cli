@@ -286,8 +286,17 @@ def search_for_student():
 
 # Handles the logic to search for student's by any of their names
 def search_by_name():
-    print("Work in progress")
 
+    user_input = input("Please enter the student's name: ")
+
+    found = False
+    for student in student_data.values():
+        if user_input.lower() in student ["student_names"].lower():
+            print_student_data(student)
+            found = True 
+    if not found:
+        print(f"No student found with the name {user_input}")
+            
 # Handles the logic to search for student's by their unique ID
 def search_by_unique_id():
     user_input = input("Please enter the student's unique ID to search: ")
