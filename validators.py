@@ -1,6 +1,6 @@
 from constants import NAME_REGEX
 import re
-import datetime
+from datetime import datetime
 
 
 # ==========================
