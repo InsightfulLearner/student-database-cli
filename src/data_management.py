@@ -1,6 +1,6 @@
 import csv
 import os
-from constants import INTERNAL_HEADERS, READABLE_HEADERS
+from constants import READABLE_HEADERS
 from student_data import student_data
 
 

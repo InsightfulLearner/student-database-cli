@@ -1,4 +1,5 @@
-from constants import NAME_REGEX
+from constants import NAME_REGEX, GRADES, SUBJECTS
+from user_input_functions import get_user_selection
 import re
 from datetime import datetime
 
@@ -44,3 +45,30 @@ def get_valid_date_of_birth():
             if validate_real_date(day, month, year):
                 return dob_input 
         print("Invalid date format or date is not valid. Please use DD-MM-YYYY")
+
+
+def validate_student_subject():
+    
+    subject_keys = list(SUBJECTS.keys())
+
+    print("Please select the subject to add the grade for")
+
+    index = 1
+    for key in subject_keys:
+        print(f"{index}. {SUBJECTS[key]}")
+        index += 1
+    user_selection = get_user_selection(1, 17)
+    student_subject = subject_keys[user_selection - 1]
+    return student_subject
+
+def validate_student_grade():
+
+    while True:
+        try:
+            user_input_grade = input("Enter students grade (U - 9): ")
+            if user_input_grade in GRADES:
+                return user_input_grade
+            else:
+                continue
+        except ValueError:
+            print(f"{user_input_grade} is not a valid grade")

@@ -1,5 +1,6 @@
-from validators import get_valid_names, get_valid_date_of_birth
+from validators import get_valid_names, get_valid_date_of_birth, validate_student_grade, validate_student_subject
 from user_input_functions import get_user_selection, handle_user_selection, exit_program
+from constants import GRADES, SUBJECTS
 from data_management import save_to_csv
 from student_data import student_data
 import random
@@ -53,12 +54,16 @@ def add_student():
     get_student_names = get_valid_names() # Gets the user to input the students name (has validation checks)
     uid = create_unique_id(get_student_names)
     get_date_of_birth = get_valid_date_of_birth()
+    student_grade = add_student_grade()
 
     student = {
         "student_names": get_student_names,
         "unique_id": uid,
-        "student_dob": get_date_of_birth
+        "student_dob": get_date_of_birth,
+        "student_address": "to implement",
+        "student_grades": student_grade
     }
+
     student_data[uid] = student 
     print("Current student data:", student_data)  # Debugging statement
     save_to_csv()
@@ -100,6 +105,20 @@ def remove_student_by_unique_id():
 # Handle address input (potentially add a postcode look-up tool with manual entry)
 
 # Add grade for subject (ask for the subject and grade + date achieved)
+def add_student_grade():
+
+    global student_data
+    student_grades = {}
+
+    for subject in SUBJECTS.values():
+        print(subject)
+    while True:
+        user_input_subject = validate_student_subject()
+        user_input_grade = validate_student_grade()
+        break
+    student_grades[user_input_subject] = user_input_grade
+    return student_grades
+    
 
 # Change grade for subject 
 
